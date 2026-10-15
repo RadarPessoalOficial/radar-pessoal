@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0b10">
+<title>RADAR PESSOAL — Mapa dos 5 Traços</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #090a0f;
+  --card: #11131b;
+  --card2: #171a24;
+  --text: #f5f6fa;
+  --muted: #989dad;
+  --purple: #8664ff;
+  --blue: #4bbcff;
+  --border: rgba(255,255,255,.09);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(134,100,255,.18), transparent 35%),
+    radial-gradient(circle at 90% 30%, rgba(75,188,255,.10), transparent 30%),
+    var(--bg);
+}
+
+button {
+  font: inherit;
+}
+
+.wrap {
+  width: min(760px, calc(100% - 28px));
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 34px 0;
+}
+
+.screen {
+  width: 100%;
+  display: none;
+  animation: enter .38s ease;
+}
+
+.screen.active {
+  display: block;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logo {
+  font-size: 13px;
+  letter-spacing: .22em;
+  font-weight: 800;
+  color: #c9bcff;
+  margin-bottom: 22px;
+}
+
+.hero {
+  font-size: clamp(38px, 8vw, 67px);
+  line-height: .98;
+  letter-spacing: -.055em;
+  margin: 0 0 20px;
+  max-width: 690px;
+}
+
+.gradient {
+  background: linear-gradient(100deg, #ffffff 15%, #a993ff 65%, #75d4ff);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  color: #b5b9c7;
+  line-height: 1.65;
+  font-size: 17px;
+  max-width: 630px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 25px 0;
+}
+
+.pill {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.035);
+  border-radius: 999px;
+  color: #c7cad4;
+  font-size: 13px;
+}
+
+.primary {
+  width: 100%;
+  border: 0;
+  border-radius: 16px;
+  min-height: 58px;
+  padding: 15px 20px;
+  background: linear-gradient(110deg, #7651ff, #608cff, #3db9ff);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 18px 50px rgba(105,82,255,.22);
+  transition: transform .18s ease, filter .18s ease;
+}
+
+.primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+.secondary {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  min-height: 52px;
+  padding: 13px 18px;
+  background: rgba(255,255,255,.04);
+  color: #d9dce6;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.disclaimer {
+  margin-top: 18px;
+  color: #737887;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.card {
+  background: linear-gradient(145deg, rgba(23,26,36,.92), rgba(13,15,22,.94));
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  padding: clamp(20px, 5vw, 36px);
+  box-shadow: 0 30px 80px rgba(0,0,0,.26);
+}
+
+.topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #8c91a1;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.progress-shell {
+  width: 100%;
+  height: 6px;
+  background: #242735;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.progress {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #7c59ff, #53bfff);
+  transition: width .3s ease;
+}
+
+.question {
+  font-size: clamp(24px, 5vw, 35px);
+  line-height: 1.22;
+  letter-spacing: -.025em;
+  margin: 0 0 24px;
+}
+
+.options {
+  display: grid;
+  gap: 9px;
+}
+
+.option {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.035);
+  color: #eceef4;
+  border-radius: 15px;
+  min-height: 54px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.option:hover {
+  transform: translateX(4px);
+  border-color: rgba(141,111,255,.55);
+  background: rgba(128,94,255,.10);
+}
+
+.scale-num {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.07);
+  color: #aaa0ff;
+  font-weight: 800;
+}
+
+.milestone {
+  min-height: 23px;
+  color: #9285dc;
+  font-size: 13px;
+  margin-top: 17px;
+}
+
+.back {
+  border: 0;
+  background: none;
+  color: #747989;
+  cursor: pointer;
+  padding: 15px 0 0;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 28px;
+  border-radius: 50%;
+  border: 4px solid #252837;
+  border-top-color: #8561ff;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.checks {
+  color: #aab0be;
+  line-height: 2;
+  margin-top: 22px;
+}
+
+.big-score {
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -.06em;
+  font-weight: 850;
+  margin: 12px 0;
+}
+
+.trait-name {
+  color: #aaa0ff;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: .13em;
+  font-weight: 800;
+}
+
+.preview-box {
+  border: 1px solid rgba(133,98,255,.3);
+  background: rgba(116,83,255,.07);
+  padding: 20px;
+  border-radius: 19px;
+  margin: 22px 0;
+}
+
+.lock-grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 9px;
+  margin: 19px 0 25px;
+}
+
+.lock {
+  position: relative;
+  overflow: hidden;
+  min-height: 83px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: #12141c;
+}
+
+.lock::after {
+  content: "BLOQUEADO";
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  font-size: 9px;
+  letter-spacing: .12em;
+  color: #777d8f;
+}
+
+.lock-title {
+  filter: blur(4px);
+  opacity: .58;
+}
+
+.price-note {
+  color: #8b90a0;
+  font-size: 12px;
+  text-align: center;
+  margin: 10px 0 0;
+}
+
+.section-title {
+  font-size: clamp(28px, 6vw, 46px);
+  letter-spacing: -.04em;
+  margin-top: 0;
+}
+
+.result-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.result-card {
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  padding: 20px;
+  background: rgba(255,255,255,.025);
+}
+
+.result-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.result-score {
+  font-size: 29px;
+  font-weight: 850;
+}
+
+.bar {
+  height: 7px;
+  border-radius: 99px;
+  background: #262936;
+  overflow: hidden;
+  margin: 14px 0 17px;
+}
+
+.bar > div {
+  height: 100%;
+  background: linear-gradient(90deg,#7858ff,#4abfff);
+  border-radius: inherit;
+}
+
+.result-card p {
+  color: #b0b4c2;
+  line-height: 1.65;
+  margin-bottom: 0;
+}
+
+.tip {
+  margin-top: 10px;
+  border-left: 2px solid #795cff;
+  padding: 8px 0 8px 14px;
+  color: #b8bdcb;
+  line-height: 1.55;
+}
+
+.canvas-wrap {
+  display: grid;
+  place-items: center;
+  margin: 10px auto 24px;
+}
+
+canvas {
+  width: min(100%, 390px);
+  height: auto;
+}
+
+.method {
+  color: #868b99;
+  font-size: 13px;
+  line-height: 1.65;
+  border-top: 1px solid var(--border);
+  margin-top: 26px;
+  padding-top: 22px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(2,3,7,.82);
+  backdrop-filter: blur(8px);
+  place-items: center;
+  padding: 20px;
+  z-index: 20;
+}
+
+.modal.open {
+  display: grid;
+}
+
+.modal-card {
+  width: min(430px,100%);
+  background: #12141d;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 24px;
+}
+
+.input {
+  width: 100%;
+  min-height: 54px;
+  border-radius: 13px;
+  border: 1px solid var(--border);
+  background: #090b11;
+  color: white;
+  padding: 12px 14px;
+  font: inherit;
+  margin: 10px 0;
+  text-transform: uppercase;
+}
+
+.error {
+  min-height: 20px;
+  color: #ff929d;
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+@media(max-width:560px) {
+  .lock-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wrap {
+    width: min(100% - 20px, 760px);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="wrap">
+
+<section id="landing" class="screen active">
+  <div class="logo">RADAR PESSOAL</div>
+
+  <h1 class="hero">
+    Você sabe o que faz.
+    <span class="gradient">Descubra o padrão por trás disso.</span>
+  </h1>
+
+  <p class="subtitle">
+    Responda situações simples do seu dia a dia e monte um mapa
+    das cinco grandes dimensões do seu perfil.
+  </p>
+
+  <div class="stats">
+    <span class="pill">35 respostas</span>
+    <span class="pill">5 dimensões</span>
+    <span class="pill">≈ 4–6 min</span>
+    <span class="pill">Prévia grátis</span>
+  </div>
+
+  <button class="primary" onclick="startQuiz()">
+    COMEÇAR MEU RADAR
+  </button>
+
+  <p class="disclaimer">
+    Questionário educacional de autoconhecimento baseado no modelo Big Five
+    e inspirado em itens do IPIP. Não constitui avaliação psicológica,
+    diagnóstico, laudo ou aconselhamento profissional.
+  </p>
+</section>
+
+
+<section id="quiz" class="screen">
+  <div class="card">
+
+    <div class="topline">
+      <span>RADAR PESSOAL</span>
+      <span id="counter">1 / 35</span>
+    </div>
+
+    <div class="progress-shell">
+      <div id="progress" class="progress"></div>
+    </div>
+
+    <h2 id="question" class="question"></h2>
+
+    <div id="options" class="options"></div>
+
+    <div id="milestone" class="milestone"></div>
+
+    <button id="backBtn" class="back" onclick="goBack()">
+      ← voltar
+    </button>
+
+  </div>
+</section>
+
+
+<section id="processing" class="screen">
+  <div class="card">
+    <div class="loader"></div>
+
+    <div class="logo">RADAR PESSOAL</div>
+
+    <h2 class="section-title">Organizando suas respostas…</h2>
+
+    <div id="processChecks" class="checks">
+      Calculando as cinco dimensões…
+    </div>
+  </div>
+</section>
+
+
+<section id="teaser" class="screen">
+  <div class="card">
+
+    <div class="logo">SEU RADAR ESTÁ PRONTO</div>
+
+    <h2 class="section-title">
+      Um dos seus padrões já ficou bem visível.
+    </h2>
+
+    <div class="preview-box">
+      <div id="teaserTrait" class="trait-name"></div>
+      <div id="teaserScore" class="big-score"></div>
+      <p id="teaserText" class="subtitle"></p>
+    </div>
+
+    <p class="subtitle">
+      Essa é apenas uma pequena parte do resultado.
+      Seu relatório completo cruza as cinco dimensões com
+      suas respostas de contexto.
+    </p>
+
+    <div class="lock-grid">
+      <div class="lock"><div class="lock-title">Extroversão 72/100</div></div>
+      <div class="lock"><div class="lock-title">Abertura 61/100</div></div>
+      <div class="lock"><div class="lock-title">Padrões combinados</div></div>
+      <div class="lock"><div class="lock-title">Plano pessoal</div></div>
+    </div>
+
+    <button class="primary" onclick="openCheckout()">
+      LIBERAR MEU RADAR COMPLETO — R$ 9,90
+    </button>
+
+    <p class="price-note">
+      Pagamento processado pela plataforma de checkout.
+    </p>
+
+    <button class="secondary" onclick="openUnlock()">
+      Já comprei — liberar meu resultado
+    </button>
+
+  </div>
+</section>
+
+
+<section id="fullResult" class="screen">
+  <div>
+
+    <div class="logo">RADAR PESSOAL • RELATÓRIO COMPLETO</div>
+
+    <h1 class="hero">
+      Seu <span class="gradient">Radar Pessoal</span>
+    </h1>
+
+    <p class="subtitle">
+      Em vez de encaixar você em uma caixa, este mapa mostra
+      cinco dimensões que podem aparecer em intensidades diferentes.
+    </p>
+
+    <div class="card canvas-wrap">
+      <canvas id="radar" width="520" height="520"></canvas>
+    </div>
+
+    <div id="fullCards" class="result-grid"></div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>Seu plano de potencialização</h2>
+      <div id="contextTips"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>Como ler este resultado</h2>
+      <p class="subtitle">
+        Nenhuma dimensão é simplesmente “boa” ou “ruim”.
+        Uma característica que ajuda em um contexto pode atrapalhar em outro.
+        O objetivo é reconhecer padrões e utilizá-los com mais consciência.
+      </p>
+
+      <div class="method">
+        <strong>Metodologia:</strong>
+        os cinco escores centrais são formados por itens diretos e invertidos,
+        normalizados em uma escala interna de 0 a 100. Os itens contextuais
+        personalizam exemplos e sugestões. Esses números representam sua
+        pontuação neste questionário, e não percentis da população.
+        Esta ferramenta é educacional e não substitui avaliação psicológica.
+      </div>
+    </div>
+
+    <button class="secondary" onclick="window.print()">
+      Salvar meu relatório em PDF / imprimir
+    </button>
+
+    <button class="secondary" onclick="restartQuiz()">
+      Refazer meu Radar
+    </button>
+
+  </div>
+</section>
+
+</main>
+
+
+<div id="unlockModal" class="modal">
+  <div class="modal-card">
+
+    <div class="logo">ACESSO COMPLETO</div>
+
+    <h2>Digite sua chave de acesso</h2>
+
+    <p class="subtitle" style="font-size:14px">
+      A chave fica dentro do conteúdo entregue após a compra.
+    </p>
+
+    <input
+      id="accessKey"
+      class="input"
+      placeholder="EX.: XXXX-XXXX-XXXX"
+      autocomplete="off"
+    >
+
+    <div id="unlockError" class="error"></div>
+
+    <button class="primary" onclick="verifyKey()">
+      LIBERAR RESULTADO
+    </button>
+
+    <button class="secondary" onclick="closeUnlock()">
+      Voltar
+    </button>
+
+  </div>
+</div>
+
+
+<script>
+
+/*
+=========================================================
+ANTES DE PUBLICAR:
+Troque apenas o texto abaixo pelo link do checkout Kirvano.
+=========================================================
+*/
+
+const CHECKOUT_URL = "COLE_AQUI_O_LINK_DA_KIRVANO";
+
+/*
+A chave real do produto será:
+RP26-N7Q4-X9KM
+
+No site público guardamos somente o hash SHA-256 dela.
+Isso não transforma um site estático em sistema antifraude,
+mas evita deixar a chave escrita diretamente no código.
+*/
+
+const ACCESS_HASH =
+"c8a93e498dea16924ade8bc51dde08cc1cbaa42715963722feb4d81b7b089924";
+
+
+const traits = {
+  O: {
+    name: "Abertura / Imaginação"
+  },
+  C: {
+    name: "Conscienciosidade"
+  },
+  E: {
+    name: "Extroversão"
+  },
+  A: {
+    name: "Amabilidade"
+  },
+  N: {
+    name: "Reatividade emocional"
+  }
+};
+
+
+const questions = [
+
+  {
+    text: "Em encontros com várias pessoas, converso com gente diferente com facilidade.",
+    trait: "E"
+  },
+
+  {
+    text: "Quando aparece uma tarefa simples que precisa ser feita, prefiro resolver logo.",
+    trait: "C"
+  },
+
+  {
+    text: "Eu funciono melhor quando tenho algum plano para o que preciso fazer.",
+    ctx: "planejamento"
+  },
+
+  {
+    text: "Percebo com facilidade quando alguém está se sentindo mal.",
+    trait: "A"
+  },
+
+  {
+    text: "Meu humor pode mudar bastante quando o dia sai do controle.",
+    trait: "N"
+  },
+
+  {
+    text: "Tenho uma imaginação bastante ativa.",
+    trait: "O"
+  },
+
+  {
+    text: "Depois de passar muito tempo com pessoas, geralmente ainda sinto energia para continuar socializando.",
+    ctx: "energiaSocial"
+  },
+
+  {
+    text: "No dia a dia, costumo falar menos do que a maioria das pessoas.",
+    trait: "E",
+    reverse: true
+  },
+
+  {
+    text: "Às vezes esqueço de devolver objetos para o lugar onde deveriam ficar.",
+    trait: "C",
+    reverse: true
+  },
+
+  {
+    text: "Nem sempre me interesso muito pelo que outras pessoas estão vivendo.",
+    trait: "A",
+    reverse: true
+  },
+
+  {
+    text: "Uma crítica fica na minha cabeça por bastante tempo depois que acontece.",
+    ctx: "critica"
+  },
+
+  {
+    text: "Na maior parte do tempo, consigo permanecer relaxado mesmo quando algo me incomoda.",
+    trait: "N",
+    reverse: true
+  },
+
+  {
+    text: "Ideias muito abstratas ou conceituais costumam ser difíceis de acompanhar.",
+    trait: "O",
+    reverse: true
+  },
+
+  {
+    text: "Experimentar uma forma nova de fazer algo costuma me interessar.",
+    ctx: "novidade"
+  },
+
+  {
+    text: "Em um grupo, sinto facilidade para participar e colocar energia na conversa.",
+    trait: "E"
+  },
+
+  {
+    text: "Gosto de alguma ordem nas minhas coisas e na minha rotina.",
+    trait: "C"
+  },
+
+  {
+    text: "Quando existe um prazo distante, costumo avançar antes de ele virar uma urgência.",
+    ctx: "prazo"
+  },
+
+  {
+    text: "As emoções de outras pessoas costumam mexer comigo.",
+    trait: "A"
+  },
+
+  {
+    text: "Fico abalado com relativa facilidade quando alguma coisa importante dá errado.",
+    trait: "N"
+  },
+
+  {
+    text: "Gosto de explorar ideias incomuns, possibilidades e diferentes maneiras de enxergar um assunto.",
+    trait: "O"
+  },
+
+  {
+    text: "Durante um conflito, tento compreender o outro lado antes de simplesmente vencer a discussão.",
+    ctx: "conflito"
+  },
+
+  {
+    text: "Quando estou em grupo, muitas vezes prefiro ficar mais em segundo plano.",
+    trait: "E",
+    reverse: true
+  },
+
+  {
+    text: "Consigo deixar bagunça ou pequenas pendências se acumularem com facilidade.",
+    trait: "C",
+    reverse: true
+  },
+
+  {
+    text: "Problemas de outras pessoas raramente prendem muito a minha atenção.",
+    trait: "A",
+    reverse: true
+  },
+
+  {
+    text: "É raro eu ficar emocionalmente para baixo por muito tempo.",
+    trait: "N",
+    reverse: true
+  },
+
+  {
+    text: "Não me considero uma pessoa especialmente imaginativa.",
+    trait: "O",
+    reverse: true
+  },
+
+  {
+    text: "Quando ninguém assume a direção de um grupo, tenho vontade de organizar o caminho.",
+    ctx: "lideranca"
+  },
+
+  {
+    text: "Consigo tomar uma decisão mesmo quando não tenho todas as informações que gostaria.",
+    ctx: "incerteza"
+  },
+
+  {
+    text: "Quando começo algo importante, consigo permanecer bastante tempo focado antes de mudar de tarefa.",
+    ctx: "foco"
+  },
+
+  {
+    text: "Às vezes ajudo alguém mesmo quando isso custa tempo ou conforto para mim.",
+    ctx: "ajuda"
+  },
+
+  {
+    text: "Um ambiente bagunçado atrapalha minha concentração.",
+    ctx: "bagunca"
+  },
+
+  {
+    text: "Uma tarefa inacabada continua ocupando espaço na minha cabeça.",
+    ctx: "inacabado"
+  },
+
+  {
+    text: "Depois de um dia ruim, costumo recuperar meu equilíbrio relativamente rápido.",
+    ctx: "recuperacao"
+  },
+
+  {
+    text: "Uma rotina muito previsível começa a me entediar.",
+    ctx: "rotina"
+  },
+
+  {
+    text: "Quando uma ideia realmente me empolga, posso ficar bastante envolvido nela.",
+    ctx: "ideias"
+  }
+
+];
+
+
+const labels = [
+  "Nada a ver comigo",
+  "Pouco a ver comigo",
+  "Mais ou menos",
+  "Bastante a ver comigo",
+  "Muito a ver comigo"
+];
+
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+
+
+function showScreen(id) {
+  document
+    .querySelectorAll(".screen")
+    .forEach(s => s.classList.remove("active"));
+
+  document
+    .getElementById(id)
+    .classList.add("active");
+
+  window.scrollTo(0,0);
+}
+
+
+function startQuiz() {
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  showScreen("quiz");
+  renderQuestion();
+}
+
+
+function renderQuestion() {
+
+  const q = questions[current];
+
+  document.getElementById("counter").textContent =
+    `${current + 1} / ${questions.length}`;
+
+  document.getElementById("progress").style.width =
+    `${((current + 1) / questions.length) * 100}%`;
+
+  document.getElementById("question").textContent = q.text;
+
+  const options = document.getElementById("options");
+  options.innerHTML = "";
+
+  labels.forEach((label, index) => {
+
+    const value = index + 1;
+
+    const btn = document.createElement("button");
+
+    btn.className = "option";
+
+    btn.innerHTML =
+      `<span class="scale-num">${value}</span>${label}`;
+
+    btn.onclick = () => choose(value);
+
+    options.appendChild(btn);
+  });
+
+
+  const milestones = {
+    6: "Seu primeiro padrão já começa a aparecer.",
+    13: "Agora comportamento e contexto começam a se cruzar.",
+    20: "Mais da metade. Algumas dimensões já estão se definindo.",
+    27: "Último bloco. Falta pouco para montar seu Radar."
+  };
+
+  document.getElementById("milestone").textContent =
+    milestones[current] || "";
+
+  document.getElementById("backBtn").style.visibility =
+    current === 0 ? "hidden" : "visible";
+}
+
+
+function choose(value) {
+
+  answers[current] = value;
+
+  setTimeout(() => {
+
+    if (current < questions.length - 1) {
+      current++;
+      renderQuestion();
+    } else {
+      processResults();
+    }
+
+  }, 110);
+}
+
+
+function goBack() {
+
+  if (current > 0) {
+    current--;
+    renderQuestion();
+  }
+}
+
+
+function processResults() {
+
+  showScreen("processing");
+
+  const el = document.getElementById("processChecks");
+
+  el.innerHTML =
+    "Calculando as cinco dimensões…";
+
+  setTimeout(() => {
+    el.innerHTML =
+      "✓ Cinco dimensões calculadas<br>Comparando itens diretos e invertidos…";
+  }, 550);
+
+  setTimeout(() => {
+    el.innerHTML =
+      "✓ Cinco dimensões calculadas<br>" +
+      "✓ Itens diretos e invertidos conferidos<br>" +
+      "Preparando seu Radar…";
+  }, 1050);
+
+  setTimeout(() => {
+
+    const result = calculateResult();
+
+    localStorage.setItem(
+      "radarPessoalResult",
+      JSON.stringify(result)
+    );
+
+    renderTeaser(result);
+
+  }, 1550);
+}
+
+
+function calculateResult() {
+
+  const bucket = {
+    O: [],
+    C: [],
+    E: [],
+    A: [],
+    N: []
+  };
+
+  const context = {};
+
+  questions.forEach((q, index) => {
+
+    const raw = answers[index];
+
+    if (q.trait) {
+
+      const adjusted =
+        q.reverse ? (6 - raw) : raw;
+
+      bucket[q.trait].push(adjusted);
+    }
+
+    if (q.ctx) {
+      context[q.ctx] = raw;
+    }
+  });
+
+
+  const scores = {};
+
+  Object.keys(bucket).forEach(key => {
+
+    const arr = bucket[key];
+
+    const mean =
+      arr.reduce((a,b) => a + b, 0) / arr.length;
+
+    scores[key] =
+      Math.round(((mean - 1) / 4) * 100);
+  });
+
+
+  return {
+    scores,
+    context,
+    createdAt: new Date().toISOString()
+  };
+}
+
+
+function band(score) {
+
+  if (score < 40) return "low";
+
+  if (score > 60) return "high";
+
+  return "mid";
+}
+
+
+const descriptions = {
+
+  O: {
+
+    low:
+      "Você tende a favorecer o concreto, o familiar e aquilo que pode ser aplicado de forma direta. Isso pode ajudar a manter os pés no chão. O ponto de atenção é não rejeitar uma possibilidade apenas porque ela ainda parece abstrata ou diferente.",
+
+    mid:
+      "Seu perfil parece alternar entre praticidade e exploração. Você consegue apreciar novidade quando ela faz sentido, mas não precisa transformar tudo em experimento. Essa flexibilidade pode ser útil para adaptar ideias à realidade.",
+
+    high:
+      "Curiosidade, imaginação e exploração de possibilidades aparecem com força no seu perfil. Isso favorece criatividade e conexão entre ideias. O risco é abrir possibilidades demais e perder energia antes de transformar uma delas em execução."
+  },
+
+
+  C: {
+
+    low:
+      "Você tende a trabalhar com mais flexibilidade do que estrutura rígida. Isso pode facilitar improvisação e adaptação. O risco aparece quando pequenas pendências se acumulam ou quando a urgência passa a decidir sua rotina por você.",
+
+    mid:
+      "Você parece conseguir usar organização quando ela é necessária sem depender o tempo inteiro de estruturas rígidas. O desafio é reconhecer quais situações realmente precisam de método antes que o prazo faça essa escolha por você.",
+
+    high:
+      "Estrutura, ordem e conclusão de tarefas aparecem com força. Você tende a funcionar bem quando existe um caminho claro. O ponto de atenção é evitar que planejamento, controle ou perfeccionismo consumam energia que deveria ir para a execução."
+  },
+
+
+  E: {
+
+    low:
+      "Você tende a preservar mais sua energia social e pode preferir contextos menores ou interações mais seletivas. Isso não significa falta de habilidade social. O cuidado é não transformar necessidade de espaço em isolamento automático.",
+
+    mid:
+      "Seu nível de expressão social parece bastante dependente do contexto. Você pode participar ativamente quando existe interesse e também valorizar períodos mais reservados. Essa adaptação é uma vantagem quando você respeita seus próprios limites.",
+
+    high:
+      "Contato, expressão e participação social aparecem com força no seu Radar. Você tende a ganhar energia com interação e pode facilitar o movimento de grupos. O ponto de atenção é deixar espaço para escuta, reflexão e recuperação."
+  },
+
+
+  A: {
+
+    low:
+      "Você pode priorizar franqueza, independência e análise objetiva em vez de concordância automática. Isso ajuda em decisões difíceis. O risco é uma mensagem correta chegar de maneira mais dura do que você pretendia.",
+
+    mid:
+      "Você parece equilibrar consideração pelos outros com capacidade de defender sua própria posição. Dependendo da situação, consegue cooperar sem necessariamente evitar divergências.",
+
+    high:
+      "Empatia, cooperação e atenção ao estado dos outros aparecem com força. Isso favorece vínculos e leitura social. O cuidado é não carregar problemas que não são seus ou concordar apenas para evitar desconforto."
+  },
+
+
+  N: {
+
+    low:
+      "Seu perfil indica maior estabilidade diante de pressão e uma tendência a recuperar o equilíbrio com mais facilidade. Isso pode ser uma grande força. O risco é subestimar sinais emocionais importantes porque você consegue seguir funcionando.",
+
+    mid:
+      "Sua reação emocional parece variar conforme a importância da situação. Você não é indiferente ao estresse, mas também não tende a reagir da mesma forma a tudo. Reconhecer seus gatilhos específicos pode ser mais útil do que tentar 'sentir menos'.",
+
+    high:
+      "Você parece perceber e sentir mudanças de pressão com intensidade. Isso pode aumentar sensibilidade a riscos e ao ambiente, mas também consumir bastante energia. Estratégias de recuperação e separação entre fato e antecipação tornam-se especialmente importantes."
+  }
+
+};
+
+
+function renderTeaser(result) {
+
+  const entries =
+    Object.entries(result.scores);
+
+  entries.sort(
+    (a,b) =>
+      Math.abs(b[1] - 50) -
+      Math.abs(a[1] - 50)
+  );
+
+  const [key, score] = entries[0];
+
+  document.getElementById("teaserTrait").textContent =
+    traits[key].name;
+
+  document.getElementById("teaserScore").textContent =
+    `${score}/100`;
+
+  const fullText =
+    descriptions[key][band(score)];
+
+  const firstSentence =
+    fullText.split(".")[0] + ".";
+
+  document.getElementById("teaserText").textContent =
+    firstSentence;
+
+  showScreen("teaser");
+}
+
+
+function openCheckout() {
+
+  if (
+    !CHECKOUT_URL ||
+    CHECKOUT_URL.includes("COLE_AQUI")
+  ) {
+
+    alert(
+      "O site está funcionando. Antes de publicar, coloque aqui o link do checkout da Kirvano."
+    );
+
+    return;
+  }
+
+  window.open(
+    CHECKOUT_URL,
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+
+
+function openUnlock() {
+  document
+    .getElementById("unlockModal")
+    .classList.add("open");
+
+  document.getElementById("accessKey").focus();
+}
+
+
+function closeUnlock() {
+  document
+    .getElementById("unlockModal")
+    .classList.remove("open");
+}
+
+
+async function sha256(text) {
+
+  const data =
+    new TextEncoder().encode(text);
+
+  const digest =
+    await crypto.subtle.digest(
+      "SHA-256",
+      data
+    );
+
+  return Array
+    .from(new Uint8Array(digest))
+    .map(b => b.toString(16).padStart(2,"0"))
+    .join("");
+}
+
+
+async function verifyKey() {
+
+  const input =
+    document
+      .getElementById("accessKey")
+      .value
+      .trim()
+      .toUpperCase();
+
+  const error =
+    document.getElementById("unlockError");
+
+  error.textContent = "";
+
+  if (!input) {
+    error.textContent =
+      "Digite a chave recebida após a compra.";
+    return;
+  }
+
+  const hashed =
+    await sha256(input);
+
+  if (hashed !== ACCESS_HASH) {
+
+    error.textContent =
+      "Chave não reconhecida. Confira os caracteres e tente novamente.";
+
+    return;
+  }
+
+
+  const saved =
+    localStorage.getItem("radarPessoalResult");
+
+  if (!saved) {
+
+    error.textContent =
+      "Seu resultado não está mais salvo neste navegador. Feche esta janela, refaça as 35 respostas e depois use a mesma chave.";
+
+    return;
+  }
+
+
+  localStorage.setItem(
+    "radarPessoalUnlocked",
+    "yes"
+  );
+
+  closeUnlock();
+
+  renderFull(
+    JSON.parse(saved)
+  );
+}
+
+
+function renderFull(result) {
+
+  showScreen("fullResult");
+
+  const container =
+    document.getElementById("fullCards");
+
+  container.innerHTML = "";
+
+
+  ["O","C","E","A","N"].forEach(key => {
+
+    const score =
+      result.scores[key];
+
+    const card =
+      document.createElement("div");
+
+    card.className = "result-card";
+
+    let bandLabel =
+      score < 40
+        ? "Expressão menor"
+        : score > 60
+          ? "Expressão maior"
+          : "Expressão intermediária";
+
+
+    card.innerHTML = `
+
+      <div class="result-head">
+
+        <div>
+          <div class="trait-name">
+            ${traits[key].name}
+          </div>
+
+          <div style="
+            margin-top:6px;
+            color:#8e93a2;
+            font-size:12px
+          ">
+            ${bandLabel}
+          </div>
+        </div>
+
+        <div class="result-score">
+          ${score}/100
+        </div>
+
+      </div>
+
+      <div class="bar">
+        <div style="width:${score}%"></div>
+      </div>
+
+      <p>
+        ${descriptions[key][band(score)]}
+      </p>
+
+    `;
+
+    container.appendChild(card);
+  });
+
+
+  renderContextTips(
+    result.context
+  );
+
+  drawRadar(
+    result.scores
+  );
+}
+
+
+function renderContextTips(ctx) {
+
+  const tips = [];
+
+
+  if (ctx.planejamento >= 4) {
+    tips.push(
+      "Use sua preferência por planejamento para reduzir decisões repetidas: escolha três prioridades antes de começar o dia."
+    );
+  } else if (ctx.planejamento <= 2) {
+    tips.push(
+      "Em vez de tentar criar uma rotina rígida, use uma estrutura mínima: uma prioridade obrigatória e duas opcionais por dia."
+    );
+  }
+
+
+  if (ctx.prazo <= 2) {
+    tips.push(
+      "Prazos distantes podem não gerar urgência suficiente para você. Crie uma entrega intermediária bem menor antes do prazo real."
+    );
+  } else {
+    tips.push(
+      "Você tende a responder bem a antecipação. Transforme projetos maiores em checkpoints para manter essa vantagem."
+    );
+  }
+
+
+  if (ctx.critica >= 4) {
+    tips.push(
+      "Quando receber uma crítica, separe três coisas no papel: o fato, a interpretação que você fez e a ação realmente necessária."
+    );
+  }
+
+
+  if (ctx.foco <= 2) {
+    tips.push(
+      "Sua atenção pode mudar de direção com facilidade. Trabalhe em blocos curtos com apenas uma aba ou tarefa principal visível."
+    );
+  } else {
+    tips.push(
+      "A capacidade de permanecer envolvido em uma tarefa é uma vantagem. Proteja blocos de concentração antes de abrir mensagens e notificações."
+    );
+  }
+
+
+  if (ctx.novidade >= 4 || ctx.rotina >= 4) {
+    tips.push(
+      "Novidade parece alimentar sua motivação. Preserve um objetivo fixo, mas permita variar a maneira de executá-lo."
+    );
+  }
+
+
+  if (ctx.energiaSocial <= 2) {
+    tips.push(
+      "Inclua recuperação depois de períodos socialmente intensos em vez de interpretar essa necessidade como falta de sociabilidade."
+    );
+  }
+
+
+  if (ctx.inacabado >= 4) {
+    tips.push(
+      "Pendências parecem consumir espaço mental. Mantenha uma lista externa curta para não depender da memória para lembrar tudo."
+    );
+  }
+
+
+  if (ctx.recuperacao <= 2) {
+    tips.push(
+      "Depois de situações emocionalmente pesadas, considere criar um ritual curto de transição antes de tomar novas decisões importantes."
+    );
+  }
+
+
+  const holder =
+    document.getElementById("contextTips");
+
+  holder.innerHTML =
+    tips
+      .slice(0,6)
+      .map(t => `<div class="tip">${t}</div>`)
+      .join("");
+}
+
+
+function drawRadar(scores) {
+
+  const canvas =
+    document.getElementById("radar");
+
+  const ctx =
+    canvas.getContext("2d");
+
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.clearRect(0,0,w,h);
+
+  const cx = w/2;
+  const cy = h/2;
+
+  const radius = 170;
+
+  const keys =
+    ["O","C","E","A","N"];
+
+  const short =
+    ["Abertura","Consciência","Extroversão","Amabilidade","Reatividade"];
+
+
+  function point(index, r) {
+
+    const angle =
+      -Math.PI/2 +
+      index * (Math.PI*2/5);
+
+    return [
+      cx + Math.cos(angle)*r,
+      cy + Math.sin(angle)*r
+    ];
+  }
+
+
+  ctx.strokeStyle =
+    "rgba(255,255,255,.11)";
+
+  ctx.lineWidth = 2;
+
+
+  [0.25,0.5,0.75,1].forEach(scale => {
+
+    ctx.beginPath();
+
+    for (let i=0;i<5;i++) {
+
+      const [x,y] =
+        point(i,radius*scale);
+
+      if(i===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+
+    ctx.closePath();
+    ctx.stroke();
+  });
+
+
+  for(let i=0;i<5;i++) {
+
+    const [x,y] =
+      point(i,radius);
+
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(x,y);
+    ctx.stroke();
+  }
+
+
+  const gradient =
+    ctx.createLinearGradient(
+      100,
+      100,
+      420,
+      420
+    );
+
+  gradient.addColorStop(
+    0,
+    "rgba(131,94,255,.75)"
+  );
+
+  gradient.addColorStop(
+    1,
+    "rgba(70,191,255,.65)"
+  );
+
+
+  ctx.beginPath();
+
+  keys.forEach((key,i) => {
+
+    const r =
+      radius * (scores[key]/100);
+
+    const [x,y] =
+      point(i,r);
+
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+
+  ctx.closePath();
+
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  ctx.strokeStyle =
+    "rgba(180,162,255,.95)";
+
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+
+  ctx.fillStyle =
+    "#cdd1dc";
+
+  ctx.font =
+    "600 18px Arial";
+
+  ctx.textAlign =
+    "center";
+
+
+  short.forEach((label,i) => {
+
+    const [x,y] =
+      point(i,radius + 38);
+
+    ctx.fillText(
+      label,
+      x,
+      y + 6
+    );
+  });
+}
+
+
+function restartQuiz() {
+
+  localStorage.removeItem(
+    "radarPessoalResult"
+  );
+
+  localStorage.removeItem(
+    "radarPessoalUnlocked"
+  );
+
+  startQuiz();
+}
+
+
+/*
+Se a pessoa já tinha comprado neste navegador,
+mantemos o acesso quando ela voltar.
+*/
+
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    const unlocked =
+      localStorage.getItem(
+        "radarPessoalUnlocked"
+      );
+
+    const saved =
+      localStorage.getItem(
+        "radarPessoalResult"
+      );
+
+    if (unlocked === "yes" && saved) {
+      renderFull(
+        JSON.parse(saved)
+      );
+    }
+  }
+);
+
+</script>
+
+</body>
+</html>
